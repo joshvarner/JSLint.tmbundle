@@ -84,6 +84,45 @@ var tm_jslint = {
         })));
 
         $('<button>', {
+            text: 'The Good Parts',
+            click: function (e) {
+                e.preventDefault();
+                self.disableInlineOptions();
+
+                $.extend(self.options, {
+                    white:    true,
+                    onevar:   true,
+                    undef:    true,
+                    nomen:    true,
+                    eqeqeq:   true,
+                    plusplus: true,
+                    bitwise:  true,
+                    regexp:   true,
+                    newcap:   true,
+                    immed:    true
+                });
+
+                self.runCheck();
+            }
+        }).appendTo(div);
+
+        $('<button>', {
+            text: 'Clear All',
+            click: function (e) {
+                e.preventDefault();
+                self.disableInlineOptions();
+
+                $.each(self.options, function (i, val) {
+                    if (typeof val === 'boolean') {
+                        self.options[i] = false;
+                    }
+                });
+
+                self.runCheck();
+            }
+        }).appendTo(div);
+
+        $('<button>', {
             text: 'Run Again',
             click: function (e) {
                 e.preventDefault();
