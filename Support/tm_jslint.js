@@ -6,7 +6,8 @@
 var tm_jslint = {
     input: '',
     filePath: '',
-    options: {
+    options: {},
+    defaults: {
         adsafe:   false,
         bitwise:  true,
         browser:  false,
@@ -35,7 +36,11 @@ var tm_jslint = {
         strict:   false,
         sub:      false,
         white:    true,
-        widget:   false
+        widget:   false,
+        maxlen:   0,
+        maxerr:   50,
+        indent:   4,
+        predef:   {}
     },
     checkboxes: {
         passfail: 'Stop on first error',
@@ -71,7 +76,12 @@ var tm_jslint = {
     
     init: function () {
         var div = $('<div>'),
+            globalsRe = /\/\*globals\b([^\/*]+)\*\//gmi,
+            matches = false,
+            globals = [],
             self = this;
+
+        this.options = $.extend({}, this.defaults);
 
         $.each(this.checkboxes, function (name, desc) {
             $('<label>', { title: name, html: desc })
@@ -82,6 +92,39 @@ var tm_jslint = {
                 }))
                 .appendTo(div);
         });
+
+        while (null !== (matches = globalsRe.exec(this.input))) {
+            globals = globals.concat(matches[1].split(','));
+        }
+
+        globals.forEach(function (name, i) {
+            self.addPredefGlobal(name);
+        });
+
+        div.append($('<label>Predefined: </label>').append($('<input>', {
+            type: 'text',
+            value: this.getPredefGlobals(),
+            id: 'JSLINT_PREDEF_GLOBALS',
+            change: function () {
+                var elem = $(this);
+
+                self.options.predef = {};
+                elem.val().split(',').forEach(function (name, i) {
+                    self.addPredefGlobal(name);
+                });
+                elem.val(self.getPredefGlobals());
+                self.updateLintString();
+            }
+        })));
+
+        $('<button>', {
+            text: 'Run Again',
+            click: function (e) {
+                e.preventDefault();
+                self.disableInlineOptions();
+                self.runCheck();
+            }
+        }).appendTo(div);
 
         div.prependTo('#JSLINT_OPTIONS');
         
@@ -96,8 +139,6 @@ var tm_jslint = {
                 var elem = $(this);
 
                 self.options[elem.attr('title')] = elem.is(':checked');
-                self.disableInlineOptions();
-                self.runCheck();
             }
         });
     },
@@ -105,24 +146,45 @@ var tm_jslint = {
     disableInlineOptions: function () {
         // Disable in-code options, since we're forcing a change, but don't remove the
         // comment or we'll mess up line numbers
-        this.input = this.input.replace(/\/\*(jslint)\b(?=[^\/*]+\*\/)/gmi, '/*______');
+        this.input = this.input.replace(/\/\*(jslint|globals)\b(?=[^\/*]+\*\/)/gmi, '/*______');
     },
 
-    runCheck: function () {
-        var tmUrlBase = 'txmt://open?url=file://' + this.filePath,
-            output = $('#lint-output'),
+    addPredefGlobal: function (token) {
+        var name, readWrite = false;
+
+        token = token.split(':').map(function (str) {
+            return str.trim().replace(/['"]/g, '');
+        });
+
+        if (!(name = token[0])) {
+            return;
+        }
+
+        readWrite = (2 === token.length && 'true' === token[1]);
+
+        if (!this.options.predef) {
+            this.options.predef = {};
+        }
+
+        this.options.predef[name] = readWrite;
+    },
+
+    getPredefGlobals: function () {
+        var list = [],
+            prop = false;
+
+        for (prop in this.options.predef) {
+            list.push(prop + (this.options.predef[prop] === true ? ':true' : ''));
+        }
+
+        return list.sort().join(', ');
+    },
+
+    updateLintString: function () {
+        var lintString = '',
             lintOpts = [],
-            errorList = $('<ul>', { id: 'lint-errors' }),
-            errors = [],
-            numErrors = 0,
-            ret = false,
-            lastLine = false,
+            globalsStr = '',
             self = this;
-
-        TextMate.isBusy = true;
-        output.html('Please wait..');
-
-        ret = JSLINT(this.input, this.options);
 
         $.each(this.options, function (name, value) {
             if (name in self.checkboxes) {
@@ -131,7 +193,7 @@ var tm_jslint = {
                 } else {
                     $('#JSLINT_' + name.toUpperCase()).removeAttr('checked');
                 }
-                
+
                 lintOpts.push(name + ':' + (self.options[name] ? 'true' : 'false'));
             }
         });
@@ -148,8 +210,38 @@ var tm_jslint = {
             lintOpts.push('maxerr:' + this.options.maxerr);
         }
 
-        $('#JSLINT_JSLINTSTRING').text('/*jslint ' + lintOpts.join(', ') + ' */');
+        lintString = '/*jslint ' + lintOpts.join(', ') + " */\n";
 
+        globalsStr = this.getPredefGlobals();
+
+        if (globalsStr.length) {
+            lintString += '/*globals ' + globalsStr + " */\n";
+        }
+
+        $('#JSLINT_JSLINTSTRING').text(lintString);
+    },
+
+    runCheck: function () {
+        var tmUrlBase = 'txmt://open?url=file://' + this.filePath,
+            output = $('#lint-output'),
+            errorList = $('<ul>', { id: 'lint-errors' }),
+            errors = [],
+            numErrors = 0,
+            ret = false,
+            lastLine = false,
+            lintData = false,
+            impliedsList = false,
+            implieds = [],
+            self = this;
+
+        TextMate.isBusy = true;
+        output.html('Please wait..');
+
+        ret = JSLINT(this.input, this.options);
+        lintData = JSLINT.data();
+
+        this.updateLintString();
+        $('#JSLINT_PREDEF_GLOBALS').val(this.getPredefGlobals());
         output.empty();
 
         if (!ret && JSLINT.errors.length) {
