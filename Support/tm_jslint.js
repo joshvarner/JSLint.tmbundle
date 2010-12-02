@@ -226,12 +226,12 @@ var tm_jslint = {
             lintOpts.push('maxerr:' + o.maxerr);
         }
 
-        lintString = '/*jslint ' + lintOpts.join(', ') + " */\n";
+        lintString = '/' + '*jslint ' + lintOpts.join(', ') + " */\n";
 
         globalsStr = this.getPredefGlobals();
 
         if (globalsStr.length) {
-            lintString += '/*globals ' + globalsStr + " */\n";
+            lintString += '/' + '*globals ' + globalsStr + " */\n";
         }
 
         $('#JSLINT_JSLINTSTRING').text(lintString);
