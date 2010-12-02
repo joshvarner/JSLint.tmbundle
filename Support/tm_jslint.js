@@ -259,10 +259,22 @@ var tm_jslint = {
             errors.forEach(function (e, i) {
                 var url = tmUrlBase + '&line=' + e.line + '&column=' + e.character,
                     item = $('<li>').appendTo(errorList),
+                    reason = $('<div>', { 'class': 'lint-reason', text: e.reason }).appendTo(item),
                     link = $('<a>', { 'class': 'lint-error', href: url }).appendTo(item);
 
+                if ('raw' in e && "'{a}' is not defined." === e.raw) {
+                    $('<button>', {
+                        text: 'Add to Predefined',
+                        title: "Add '" + e.a + "' to list of predefined globals",
+                        click: function (ev) {
+                            ev.preventDefault();
+                            self.addPredefGlobal(e.a);
+                            self.disableInlineOptions();
+                            self.runCheck();
+                        }
+                    }).appendTo(reason);
+                }
 
-                $('<div>', { 'class': 'lint-reason', text: e.reason }).appendTo(link);
                 $('<div>', {
                     'class': 'line-col',
                     text: 'Line ' + e.line + ' Col ' + e.character
