@@ -28,7 +28,7 @@ a:hover {
     cursor: pointer;
     background: #d9dcdf;
 }
-pre, code {
+pre, code, #JSLINT_JSLINTSTRING {
     font: 12px/1.1 'menlo', 'monaco', fixed;
 }
 pre {
@@ -53,20 +53,21 @@ ul, li {
     padding: 0;
     overflow: hidden;
 }
+#lint-errors {
+    margin-bottom: 1em;
+}
 #lint-errors li a {
-    font-size: 13px;
-    padding: 4px;
     text-decoration: none;
     position: relative;
+    padding: 4px;
 }
 #lint-errors li {
     border-bottom: 1px solid #aaa;
+    font-size: 13px;
+    padding: 4px;
 }
 #lint-errors li:first-child {
     border-top: 1px solid #aaa;
-}
-#lint-errors li:last-child {
-    border: none;
 }
 label {
     display: block;
@@ -83,7 +84,7 @@ label input[type="checkbox"] {
     width: 220px;
     margin-left: 10px;
     overflow: hidden;
-    background: #eee;
+    background: #f8f8f0;
     border: 1px solid #ddd;
     font-size: 12px;
     padding: 8px 6px;
@@ -94,6 +95,39 @@ label input[type="checkbox"] {
     height: 80px;
     font-size: 10px;
 }
-#debug {
-    display: none;
+button {
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1.3;
+    margin: 0;
+    overflow: hidden;
+    padding: .4em .55em;
+    text-decoration: none;
+    background: -webkit-gradient(linear, left top, left bottom,
+        from(#fafafa),
+        color-stop(.35, #fafafa),
+        to(#eaeaea)
+    ) no-repeat;
+    border: 1px solid #ddd;
+    border-color: rgba(0,0,0,.15);
+    font-weight: normal;
+    color: #404040;
+    text-shadow: rgba(255,255,255,1) 1px 1px 0;
+    border-radius: 3px;
+}
+button:hover {
+    cursor: pointer;
+    border-color: #b4b4b4;
+}
+button:focus {
+    border-color: #acacac;
+    box-shadow: 0 0 3px 1px rgb(170,195,210);
+}
+#lint-errors button {
+    margin-left: .5em;
+    font-size: 10px;
+    padding: .3em .45em;
+}
+#JSLINT_OPTIONS button {
+    margin: .5em 0;
 }
