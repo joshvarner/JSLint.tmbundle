@@ -1,5 +1,5 @@
-/*jslint white:false,regexp:false */
-/*globals $,window,TextMate,JSLINT */
+/*jslint forin:true, regexp:false, white:false */
+/*globals $, JSLINT, TextMate, setTimeout, window */
 
 (function () {
 
