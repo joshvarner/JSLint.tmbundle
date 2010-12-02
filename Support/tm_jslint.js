@@ -48,6 +48,7 @@ var tm_jslint = {
             self = this;
 
         this.options = $.extend({}, this.defaults);
+        this.input = this.input.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
         $.each(this.checkboxes, function (name, desc) {
             $('<label>', { title: name, html: desc })
@@ -59,13 +60,7 @@ var tm_jslint = {
                 .appendTo(div);
         });
 
-        while (null !== (matches = globalsRe.exec(this.input))) {
-            globals = globals.concat(matches[1].split(','));
-        }
-
-        globals.forEach(function (name, i) {
-            self.addPredefGlobal(name);
-        });
+        this.filterBlockComments(false);
 
         div.append($('<label>Predefined: </label>').append($('<input>', {
             type: 'text',
@@ -162,9 +157,7 @@ var tm_jslint = {
     },
     
     disableInlineOptions: function () {
-        // Disable in-code options, since we're forcing a change, but don't remove the
-        // comment or we'll mess up line numbers
-        this.input = this.input.replace(/\/\*(jslint|globals)\b(?=[^\/*]+\*\/)/gmi, '/*______');
+        this.filterBlockComments(true);
     },
 
     addPredefGlobal: function (token) {
@@ -231,15 +224,115 @@ var tm_jslint = {
             lintOpts.push('maxerr:' + o.maxerr);
         }
 
-        lintString = '/' + '*jslint ' + lintOpts.join(', ') + " */\n";
+        lintString = '/*jslint ' + lintOpts.join(', ') + " */\n";
 
         globalsStr = this.getPredefGlobals();
 
         if (globalsStr.length) {
-            lintString += '/' + '*globals ' + globalsStr + " */\n";
+            lintString += '/*globals ' + globalsStr + " */\n";
         }
 
         $('#JSLINT_JSLINTSTRING').text(lintString);
+    },
+
+    /**
+     * Crudely walk the source to work with /*jslint and /*globals options
+     * embedded in the input source code
+     *
+     * This avoids issues raised when simply using regular expressions, like
+     * matching instances of `'/*jslint'` string literals
+     */
+    filterBlockComments: function (updateInput) {
+        var filtered = '',
+            input = this.input,
+            len = input.length,
+            pos = 0,
+            end = 0,
+            inQuotes = false,
+            type = false,
+            globals = [],
+            ch = false,
+            self = this;
+
+        function peek() { return input.charAt(pos); }
+        function next() {
+            var ch = input.charAt(pos++);
+            return (!ch ? false : ch);
+        }
+
+        for (;;) {
+            if (pos < 0 || false === (ch = next())) {
+                break;
+            }
+
+            // String literal; skip it
+            if (ch === '"' || ch === "'") {
+                filtered += inQuotes = ch;
+
+                for (;;) {
+                    if (false === (ch = next())) {
+                        break;
+                    }
+
+                    filtered += ch;
+
+                    if (ch === '\\' && peek()) {
+                        filtered += next();
+                    } else if (ch === inQuotes) {
+                        break;
+                    }
+                }
+
+                continue;
+            // Single-line comment; skip to the next line
+            } else if (ch === '/' && peek() === '/') {
+                pos++;
+                filtered += '//';
+
+                if (-1 !== (end = input.indexOf("\n", pos))) {
+                    end++;
+                    filtered += input.substring(pos, end);
+                    pos = end;
+                }
+                continue;
+            // Jackpot
+            } else if (ch === '/' && peek() === '*') {
+                filtered += '/*';
+                pos++;
+
+                if ('jslint' === input.substr(pos, 6)) {
+                    type = 'jslint';
+                    filtered += '______';
+                    pos += 6;
+                } else if ('globals' === input.substr(pos, 7)) {
+                    type = 'globals';
+                    filtered += '_______';
+                    pos += 7;
+                } else {
+                    type = false;
+                }
+
+                if (-1 !== (end = input.indexOf('*/', pos))) {
+                    if (type === 'globals') {
+                        globals.push(input.substring(pos, end).trim());
+                    }
+                    end += 2;
+                    filtered += input.substring(pos, end);
+                    pos = end;
+                }
+                continue;
+            }
+
+            filtered += ch;
+        }
+
+        if (updateInput) {
+            this.input = filtered;
+        } else {
+            globals.join(',').split(',').forEach(function (val, i) {
+                self.addPredefGlobal(val);
+            });
+        }
     },
 
     runCheck: function () {
