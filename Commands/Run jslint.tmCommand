@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env php -q
+&lt;?php
+
+$bundlePath = getenv('TM_BUNDLE_PATH');
+
+$jsonOpts = array(
+    'filePath' =&gt; getenv('TM_FILEPATH'),
+    'input'    =&gt; file_get_contents('php://stdin'),
+);
+
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;title&gt;JSLint Output&lt;/title&gt;
+    &lt;script src="tm-file://&lt;?php echo $bundlePath; ?&gt;/Support/jquery.min.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
+    &lt;script src="tm-file://&lt;?php echo $bundlePath; ?&gt;/Support/jslint.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
+    &lt;script src="tm-file://&lt;?php echo $bundlePath; ?&gt;/Support/tm_jslint.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
+    &lt;style type="text/css"&gt;
+
+    div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td {
+    	margin: 0;
+    	padding: 0;
+    }
+
+    html, body {
+        font-size: 13px/1.216;
+    }
+    .lint-success {
+        color: green;
+    }
+    .lint-fail {
+        color: red;
+    }
+    .lint-fail,
+    .lint-success {
+        font-weight: bold;
+        font-size: 1.3em;
+        margin-bottom: 1em;
+    }
+    a.lint-error {
+        display: block;
+        text-decoration: none;
+        color: black;
+    }
+    a:hover {
+        cursor: pointer;
+        background: #d9dcdf;
+    }
+    pre, code {
+        font: 12px/1.1 'menlo', 'monaco', fixed;
+    }
+    pre {
+        background: #f5f5f5;
+        border: 1px solid #cfcfcf;
+        margin-top: 2px;
+        padding: 2px 4px;
+        overflow: hidden;
+    }
+    .line-col {
+        float: left;
+        font-size: 10px;
+        color: #999;
+        line-height: 22px;
+        width: 80px;
+        text-align: right;
+        margin-right: 5px;
+    }
+    ul, li {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    #lint-errors li a {
+        font-size: 13px;
+        padding: 4px;
+        text-decoration: none;
+        position: relative;
+    }
+    #lint-errors li {
+        border-bottom: 1px solid #aaa;
+    }
+    #lint-errors li:first-child {
+        border-top: 1px solid #aaa;
+    }
+    #lint-errors li:last-child {
+        border: none;
+    }
+    label {
+        display: block;
+        margin-bottom: .1em;
+    }
+    label input[type="checkbox"] {
+        margin-right: .5em;
+    }
+    #lint-output {
+        overflow: hidden;
+    }
+    #JSLINT_OPTIONS {
+        float: right;
+        width: 220px;
+        margin-left: 10px;
+        overflow: hidden;
+        background: #eee;
+        border: 1px solid #ddd;
+        font-size: 12px;
+        padding: 8px 6px;
+        border-radius: 3px;
+    }
+    #JSLINT_JSLINTSTRING {
+        width: 220px;
+        height: 80px;
+        font-size: 10px;
+    }
+    #debug {
+        display: none;
+    }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;fieldset id="JSLINT_OPTIONS"&gt;
+        &lt;legend&gt;Options&lt;/legend&gt;
+        &lt;textarea id="JSLINT_JSLINTSTRING"&gt;&lt;/textarea&gt;
+    &lt;/fieldset&gt;
+    &lt;div id="lint-output"&gt;Please wait..&lt;/div&gt;
+    &lt;script type="text/javascript" charset="utf-8"&gt;
+
+    (function () {
+        $.extend(tm_jslint, &lt;?php echo json_encode($jsonOpts); ?&gt;);
+        
+        tm_jslint.init();
+        tm_jslint.runCheck();
+    })();
+
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>^V</string>
+	<key>name</key>
+	<string>Run JSLint</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.js</string>
+	<key>uuid</key>
+	<string>8A1C3343-E5AB-40DE-8EB4-A07783B2E658</string>
+</dict>
+</plist>
