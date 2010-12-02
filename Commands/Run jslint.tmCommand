@@ -11,9 +11,32 @@
 $bundlePath = getenv('TM_BUNDLE_PATH') . '/Support';
 
 $jsonOpts = array(
-    'filePath' =&gt; getenv('TM_FILEPATH'),
-    'input'    =&gt; file_get_contents('php://stdin'),
+    'filePath' =&gt; json_encode(getenv('TM_FILEPATH')),
+    'input'    =&gt; json_encode(file_get_contents('php://stdin')),
 );
+
+define('TM_EXIT_SHOW_HTML', 205);
+define('TM_EXIT_SHOW_TOOLTIP', 206);
+
+$jscPath = '/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc';
+
+// Only continue to the HTML Output Window version if we know there are errors,
+// or if we don't have access to jsc.
+if (file_exists($jscPath) &amp;&amp; is_executable($jscPath)) {
+    $tempFile = tempnam(sys_get_temp_dir(), 'tm_jslint');
+    file_put_contents($tempFile, 'print(JSLINT(' . $jsonOpts['input'] . ') ? "pass" : "fail");');
+    $ret = exec(implode(' ', array(
+        $jscPath,
+        escapeshellarg($bundlePath . '/jslint.js'),
+        escapeshellarg($tempFile)
+    )));
+    unlink($tempFile);
+
+    if ('pass' === $ret) {
+        echo 'jslint: No problems found.';
+        exit(TM_EXIT_SHOW_TOOLTIP);
+    }
+}
 
 ?&gt;
 &lt;!DOCTYPE html&gt;
@@ -34,8 +57,9 @@ $jsonOpts = array(
     &lt;script type="text/javascript" charset="utf-8"&gt;
 
     (function () {
-        $.extend(tm_jslint, &lt;?php echo json_encode($jsonOpts); ?&gt;);
-        
+        tm_jslint.filePath = &lt;?php echo $jsonOpts['filePath']; ?&gt;;
+        tm_jslint.input = &lt;?php echo $jsonOpts['input']; ?&gt;;
+
         tm_jslint.init();
         tm_jslint.runCheck();
     })();
@@ -43,7 +67,11 @@ $jsonOpts = array(
     &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</string>
+&lt;?php
+
+exit(TM_EXIT_SHOW_HTML);
+
+?&gt;</string>
 	<key>input</key>
 	<string>document</string>
 	<key>keyEquivalent</key>
@@ -51,7 +79,7 @@ $jsonOpts = array(
 	<key>name</key>
 	<string>Run JSLint</string>
 	<key>output</key>
-	<string>showAsHTML</string>
+	<string>showAsTooltip</string>
 	<key>scope</key>
 	<string>source.js</string>
 	<key>uuid</key>
