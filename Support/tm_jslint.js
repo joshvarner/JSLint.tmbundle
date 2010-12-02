@@ -95,7 +95,9 @@ var tm_jslint = {
                 var self = $(this);
 
                 tm_jslint.options[self.attr('title')] = self.is(':checked');
-                tm_jslint.input = tm_jslint.input.replace(/\/\*jslint[^\/*]+\*\//i, '');
+                // Disable in-code options, since we're forcing a change, but don't remove the
+                // comment or we'll mess up line numbers
+                tm_jslint.input = tm_jslint.input.replace(/\/\*(jslint)\b(?=[^\/*]+\*\/)/i, '/*______');
                 tm_jslint.runCheck();
             }
         });
