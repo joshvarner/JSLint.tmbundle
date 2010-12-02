@@ -20,10 +20,10 @@ $jsonOpts = array(
 &lt;html lang="en"&gt;
 &lt;head&gt;
     &lt;title&gt;JSLint Output&lt;/title&gt;
-    &lt;script src="tm-file://&lt;?php echo $bundlePath; ?&gt;/jquery.min.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
-    &lt;script src="tm-file://&lt;?php echo $bundlePath; ?&gt;/jslint.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
-    &lt;script src="tm-file://&lt;?php echo $bundlePath; ?&gt;/tm_jslint.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
-    &lt;link rel="stylesheet" href="tm-file://&lt;?php echo $bundlePath; ?&gt;/tm_jslint.css" type="text/css" media="screen" charset="utf-8" /&gt;
+    &lt;script src="file://&lt;?php echo $bundlePath; ?&gt;/jquery.min.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
+    &lt;script src="file://&lt;?php echo $bundlePath; ?&gt;/jslint.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
+    &lt;script src="file://&lt;?php echo $bundlePath; ?&gt;/tm_jslint.js" type="text/javascript" charset="utf-8"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="file://&lt;?php echo $bundlePath; ?&gt;/tm_jslint.css" type="text/css" media="screen" charset="utf-8" /&gt;
 &lt;/head&gt;
 &lt;body&gt;
     &lt;fieldset id="JSLINT_OPTIONS"&gt;
