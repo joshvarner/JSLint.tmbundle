@@ -236,11 +236,11 @@ var tm_jslint = {
     },
 
     /**
-     * Crudely walk the source to work with /*jslint and /*globals options
-     * embedded in the input source code
+     * Crudely walk the source to work with jslint options embedded in the
+     * input source code's comments.
      *
      * This avoids issues raised when simply using regular expressions, like
-     * matching instances of `'/*jslint'` string literals
+     * erroneously matching options strings embedded in string literals.
      */
     filterBlockComments: function (updateInput) {
         var filtered = '',
