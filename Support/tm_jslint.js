@@ -184,9 +184,10 @@ var tm_jslint = {
         var lintString = '',
             lintOpts = [],
             globalsStr = '',
-            self = this;
+            self = this,
+            o = this.options;
 
-        $.each(this.options, function (name, value) {
+        $.each(o, function (name, value) {
             if (name in self.checkboxes) {
                 if (!!value) {
                     $('#JSLINT_' + name.toUpperCase()).attr('checked', 'checked');
@@ -194,20 +195,22 @@ var tm_jslint = {
                     $('#JSLINT_' + name.toUpperCase()).removeAttr('checked');
                 }
 
-                lintOpts.push(name + ':' + (self.options[name] ? 'true' : 'false'));
+                if (value !== self.defaults[name]) {
+                    lintOpts.push(name + ':' + (!!value ? 'true' : 'false'));
+                }
             }
         });
 
-        if (this.options.white && +this.options.indent) {
-            lintOpts.push('indent:' + this.options.indent);
+        if (o.white && +o.indent && o.indent !== self.defaults.indent) {
+            lintOpts.push('indent:' + o.indent);
         }
 
-        if (+this.options.maxlen) {
-            lintOpts.push('maxlen:' + this.options.maxlen);
+        if (+o.maxlen && o.maxlen !== self.defaults.maxlen) {
+            lintOpts.push('maxlen:' + o.maxlen);
         }
 
-        if (+this.options.maxerr) {
-            lintOpts.push('maxerr:' + this.options.maxerr);
+        if (+o.maxerr && o.maxerr !== self.defaults.maxerr) {
+            lintOpts.push('maxerr:' + o.maxerr);
         }
 
         lintString = '/*jslint ' + lintOpts.join(', ') + " */\n";
