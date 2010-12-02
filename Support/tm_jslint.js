@@ -132,7 +132,20 @@ var tm_jslint = {
             click: function (e) {
                 $(this).select();
             }
-        });
+        }).after($('<button>', {
+            text: 'Copy to Clipboard',
+            click: function (e) {
+                var elem = $(this), cmd;
+
+                e.preventDefault();
+                cmd = TextMate.system('/usr/bin/pbcopy', function () {
+                    elem.text('Done!');
+                    setTimeout(function () { elem.text('Copy to Clipboard'); }, 1500);
+                });
+                cmd.write($('#JSLINT_JSLINTSTRING').val());
+                cmd.close();
+            }
+        }));
         
         $('#JSLINT_OPTIONS').find(':checkbox').bind({
             click: function (e) {
