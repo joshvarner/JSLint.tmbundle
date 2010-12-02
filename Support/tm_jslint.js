@@ -106,7 +106,6 @@ var tm_jslint = {
     runCheck: function () {
         var tmUrlBase = 'txmt://open?url=file://' + this.filePath,
             output = $('#lint-output'),
-            integerOpts = ['maxerr', 'maxlen', 'indent'],
             lintOpts = [],
             errorList = $('<ul>', { id: 'lint-errors' }),
             errors = [],
@@ -118,7 +117,7 @@ var tm_jslint = {
         TextMate.isBusy = true;
         output.html('Please wait..');
 
-        ret = JSLINT(this.input, tm_jslint.options);
+        ret = JSLINT(this.input, this.options);
 
         $.each(this.options, function (name, value) {
             if (name in self.checkboxes) {
@@ -132,11 +131,17 @@ var tm_jslint = {
             }
         });
 
-        integerOpts.forEach(function (name, i) {
-            if (+tm_jslint.options[name] > 0) {
-                lintOpts.push(name + ':' + tm_jslint.options[name]);
-            }
-        });
+        if (this.options.white && +this.options.indent) {
+            lintOpts.push('indent:' + this.options.indent);
+        }
+
+        if (+this.options.maxlen) {
+            lintOpts.push('maxlen:' + this.options.maxlen);
+        }
+
+        if (+this.options.maxerr) {
+            lintOpts.push('maxerr:' + this.options.maxerr);
+        }
 
         $('#JSLINT_JSLINTSTRING').text('/*jslint ' + lintOpts.join(', ') + ' */');
 
