@@ -70,7 +70,8 @@ var tm_jslint = {
     },
     
     init: function () {
-        var div = $('<div>');
+        var div = $('<div>'),
+            self = this;
 
         $.each(this.checkboxes, function (name, desc) {
             $('<label>', { title: name, html: desc })
@@ -92,17 +93,21 @@ var tm_jslint = {
         
         $('#JSLINT_OPTIONS').find(':checkbox').bind({
             click: function (e) {
-                var self = $(this);
+                var elem = $(this);
 
-                tm_jslint.options[self.attr('title')] = self.is(':checked');
-                // Disable in-code options, since we're forcing a change, but don't remove the
-                // comment or we'll mess up line numbers
-                tm_jslint.input = tm_jslint.input.replace(/\/\*(jslint)\b(?=[^\/*]+\*\/)/i, '/*______');
-                tm_jslint.runCheck();
+                self.options[elem.attr('title')] = elem.is(':checked');
+                self.disableInlineOptions();
+                self.runCheck();
             }
         });
     },
     
+    disableInlineOptions: function () {
+        // Disable in-code options, since we're forcing a change, but don't remove the
+        // comment or we'll mess up line numbers
+        this.input = this.input.replace(/\/\*(jslint)\b(?=[^\/*]+\*\/)/gmi, '/*______');
+    },
+
     runCheck: function () {
         var tmUrlBase = 'txmt://open?url=file://' + this.filePath,
             output = $('#lint-output'),
