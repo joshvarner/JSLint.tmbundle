@@ -13,6 +13,41 @@ $bundlePath = getenv('TM_BUNDLE_PATH') . '/Support';
 $jsonOpts = array(
     'filePath' =&gt; json_encode(getenv('TM_FILEPATH')),
     'input'    =&gt; json_encode(file_get_contents('php://stdin')),
+    'defaults' =&gt; json_encode(array(
+        'adsafe'   =&gt; false,
+        'bitwise'  =&gt; false,
+        'browser'  =&gt; false,
+        'cap'      =&gt; false,
+        'css'      =&gt; false,
+        'debug'    =&gt; false,
+        'devel'    =&gt; false,
+        'eqeqeq'   =&gt; false,
+        'es5'      =&gt; false,
+        'evil'     =&gt; false,
+        'forin'    =&gt; false,
+        'fragment' =&gt; false,
+        'immed'    =&gt; false,
+        'laxbreak' =&gt; false,
+        'newcap'   =&gt; false,
+        'nomen'    =&gt; false,
+        'on'       =&gt; false,
+        'onevar'   =&gt; false,
+        'passfail' =&gt; false,
+        'plusplus' =&gt; false,
+        'regexp'   =&gt; false,
+        'rhino'    =&gt; false,
+        'undef'    =&gt; true,
+        'safe'     =&gt; false,
+        'windows'  =&gt; false,
+        'strict'   =&gt; false,
+        'sub'      =&gt; false,
+        'white'    =&gt; true,
+        'widget'   =&gt; false,
+        'maxlen'   =&gt; 0,
+        'maxerr'   =&gt; 50,
+        'indent'   =&gt; 4,
+        'predef'   =&gt; new stdClass,
+    )),
 );
 
 define('TM_EXIT_SHOW_HTML', 205);
@@ -24,7 +59,10 @@ $jscPath = '/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resou
 // or if we don't have access to jsc.
 if (file_exists($jscPath) &amp;&amp; is_executable($jscPath)) {
     $tempFile = tempnam(sys_get_temp_dir(), 'tm_jslint');
-    file_put_contents($tempFile, 'print(JSLINT(' . $jsonOpts['input'] . ') ? "pass" : "fail");');
+
+    $js = "print(JSLINT({$jsonOpts['input']}, {$jsonOpts['defaults']}) ? 'pass' : 'fail');\n";
+    file_put_contents($tempFile, $js);
+
     $ret = exec(implode(' ', array(
         $jscPath,
         escapeshellarg($bundlePath . '/jslint.js'),
@@ -57,6 +95,7 @@ if (file_exists($jscPath) &amp;&amp; is_executable($jscPath)) {
     &lt;script type="text/javascript" charset="utf-8"&gt;
 
     (function () {
+        tm_jslint.defaults = &lt;?php echo $jsonOpts['defaults']; ?&gt;;
         tm_jslint.filePath = &lt;?php echo $jsonOpts['filePath']; ?&gt;;
         tm_jslint.input = &lt;?php echo $jsonOpts['input']; ?&gt;;
 
