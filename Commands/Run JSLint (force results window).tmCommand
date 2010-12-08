@@ -12,18 +12,18 @@ $bundlePath = getenv('TM_BUNDLE_PATH') . '/Support';
 
 require "{$bundlePath}/tm_jslint.php";
 
-runJsLint(false);</string>
+runJsLint(true);</string>
 	<key>input</key>
 	<string>document</string>
 	<key>keyEquivalent</key>
-	<string>^V</string>
+	<string>^L</string>
 	<key>name</key>
-	<string>Run JSLint</string>
+	<string>Run JSLint (force results window)</string>
 	<key>output</key>
-	<string>showAsTooltip</string>
+	<string>showAsHTML</string>
 	<key>scope</key>
 	<string>source.js</string>
 	<key>uuid</key>
-	<string>8A1C3343-E5AB-40DE-8EB4-A07783B2E658</string>
+	<string>9CF0311D-2E16-409C-9850-AC36247A94CF</string>
 </dict>
 </plist>
