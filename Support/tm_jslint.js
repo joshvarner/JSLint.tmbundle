@@ -62,6 +62,18 @@ var tm_jslint = {
 
         this.filterBlockComments(false);
 
+        div.append($('<label>Tab Size: </label>').append($('<input>', {
+            type: 'text',
+            value: this.options.indent,
+            id: 'JSLINT_INDENT',
+            change: function () {
+                var elem = $(this);
+
+                self.options.indent = parseInt(elem.val(), 10);
+                self.updateLintString();
+            }
+        })));
+
         div.append($('<label>Predefined: </label>').append($('<input>', {
             type: 'text',
             value: this.getPredefGlobals(),

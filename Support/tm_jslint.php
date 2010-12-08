@@ -2,6 +2,11 @@
 
 function runJsLint($forceFullRun = false) {
     $bundlePath = getenv('TM_BUNDLE_PATH') . '/Support';
+    $tabSize = 4;
+
+    if (getenv('TM_SOFT_TABS') === 'YES') {
+        $tabSize = intval(getenv('TM_TAB_SIZE')) ?: $tabSize;
+    }
 
     $opts = array(
         'filePath' => getenv('TM_FILEPATH'),
@@ -38,7 +43,7 @@ function runJsLint($forceFullRun = false) {
             'widget'   => false,
             'maxlen'   => 0,
             'maxerr'   => 50,
-            'indent'   => 4,
+            'indent'   => $tabSize,
             'predef'   => new stdClass,
         ),
     );

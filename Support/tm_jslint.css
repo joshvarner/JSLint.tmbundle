@@ -53,6 +53,12 @@ ul, li {
     padding: 0;
     overflow: hidden;
 }
+textarea {
+    padding: 4px;
+}
+input[type="text"] {
+    padding: 1px 2px;
+}
 #lint-errors {
     margin-bottom: 1em;
 }
@@ -90,8 +96,11 @@ label input[type="checkbox"] {
     padding: 8px 6px;
     border-radius: 3px;
 }
+#JSLINT_INDENT {
+    width: 3em;
+}
 #JSLINT_JSLINTSTRING {
-    width: 220px;
+    width: 210px;
     height: 80px;
     font-size: 10px;
 }
