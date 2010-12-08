@@ -150,8 +150,9 @@ var tm_jslint = {
         $('#JSLINT_OPTIONS').find(':checkbox').bind({
             click: function (e) {
                 var elem = $(this);
-
                 self.options[elem.attr('title')] = elem.is(':checked');
+                self.disableInlineOptions();
+                self.runCheck();
             }
         });
     },
@@ -343,7 +344,6 @@ var tm_jslint = {
             numErrors = 0,
             ret = false,
             lastLine = false,
-            lintData = false,
             impliedsList = false,
             implieds = [],
             self = this;
@@ -352,7 +352,6 @@ var tm_jslint = {
         output.html('Please wait..');
 
         ret = JSLINT(this.input, this.options);
-        lintData = JSLINT.data();
 
         this.updateLintString();
         $('#JSLINT_PREDEF_GLOBALS').val(this.getPredefGlobals());
