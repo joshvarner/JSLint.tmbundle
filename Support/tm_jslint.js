@@ -374,7 +374,7 @@ var tm_jslint = {
 
             $('<div>', {
                 'class': 'lint-fail',
-                text: '' + numErrors + ' error' + (numErrors > 1 ? 's' : '') + ' found'
+                text: numErrors + ' error' + (numErrors > 1 ? 's' : '') + ' found'
             }).appendTo(output);
 
             errors.forEach(function (e, i) {
