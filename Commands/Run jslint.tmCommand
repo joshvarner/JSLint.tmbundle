@@ -13,8 +13,10 @@ $bundlePath = getenv('TM_BUNDLE_PATH') . '/Support';
 require "{$bundlePath}/tm_jslint.php";
 
 runJsLint(false);</string>
-	<key>input</key>
+	<key>fallbackInput</key>
 	<string>document</string>
+	<key>input</key>
+	<string>selection</string>
 	<key>keyEquivalent</key>
 	<string>^V</string>
 	<key>name</key>
