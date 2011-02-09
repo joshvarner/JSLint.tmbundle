@@ -8,6 +8,7 @@ var tm_jslint = {
     filePath: '',
     options: {},
     defaults: {},
+    inlineOptions: {},
     checkboxes: {
         passfail:   'Stop on first error',
         white:      'Strict white space',
@@ -169,6 +170,22 @@ var tm_jslint = {
         this.filterBlockComments(true);
     },
 
+    setInlineOption: function (token) {
+        token = token.split(':').map(function (str) {
+            return str.trim().replace(/['"]/g, '');
+        });
+
+        if (2 !== token.length || !token[0].length) {
+            return;
+        }
+
+        if (token[1] === 'true') {
+            this.inlineOptions[token[0]] = true;
+        } else if (token[1] === 'false') {
+            this.inlineOptions[token[0]] = false;
+        }
+    },
+
     addPredefGlobal: function (token) {
         var name, readWrite = false;
 
@@ -205,7 +222,7 @@ var tm_jslint = {
             lintOpts = [],
             globalsStr = '',
             self = this,
-            o = this.options;
+            o = $.extend({}, this.inlineOptions, this.options);
 
         $.each(o, function (name, value) {
             if (name in self.checkboxes) {
@@ -215,7 +232,7 @@ var tm_jslint = {
                     $('#JSLINT_' + name.toUpperCase()).removeAttr('checked');
                 }
 
-                if (value !== self.defaults[name]) {
+                if (name in self.inlineOptions || value !== self.defaults[name]) {
                     lintOpts.push(name + ':' + (!!value ? 'true' : 'false'));
                 }
             }
@@ -260,6 +277,7 @@ var tm_jslint = {
             inQuotes = false,
             type = false,
             globals = [],
+            options = [],
             ch = false,
             self = this;
 
@@ -324,6 +342,8 @@ var tm_jslint = {
                 if (-1 !== (end = input.indexOf('*/', pos))) {
                     if (type === 'globals') {
                         globals.push(input.substring(pos, end).trim());
+                    } else if (type === 'jslint') {
+                        options.push(input.substring(pos, end).trim());
                     }
                     end += 2;
                     filtered += input.substring(pos, end);
@@ -340,6 +360,9 @@ var tm_jslint = {
         } else {
             globals.join(',').split(',').forEach(function (val, i) {
                 self.addPredefGlobal(val);
+            });
+            options.join(',').split(',').forEach(function (val, i) {
+                self.setInlineOption(val);
             });
         }
     },
