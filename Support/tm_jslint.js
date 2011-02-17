@@ -370,6 +370,7 @@ var tm_jslint = {
             errorList = $('<ul>', { id: 'lint-errors' }),
             errors = [],
             numErrors = 0,
+            dispNumErrors = 0,
             ret = false,
             lastLine = false,
             impliedsList = false,
@@ -390,11 +391,15 @@ var tm_jslint = {
                 return (e && typeof e === 'object');
             });
 
-            numErrors = errors.length;
+            numErrors = dispNumErrors = errors.length;
+
+            if (('reason' in errors[numErrors-1]) && /^Too many errors\./.test(errors[numErrors-1].reason)) {
+                dispNumErrors--;
+            }
 
             $('<div>', {
                 'class': 'lint-fail',
-                text: numErrors + ' error' + (numErrors > 1 ? 's' : '') + ' found'
+                text: dispNumErrors + ' error' + (dispNumErrors > 1 ? 's' : '') + ' found'
             }).appendTo(output);
 
             errors.forEach(function (e, i) {
