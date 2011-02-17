@@ -18,7 +18,8 @@ pre, code, #JSLINT_JSLINTSTRING {
     color: red;
 }
 .lint-fail,
-.lint-success {
+.lint-success,
+.lint-warnings {
     font-weight: bold;
     font-size: 1.3em;
     margin-bottom: 1em;
@@ -61,20 +62,20 @@ textarea {
 input[type="text"] {
     padding: 1px 2px;
 }
-#lint-errors {
+.lint-errors {
     margin-bottom: 1em;
 }
-#lint-errors li a {
+.lint-errors li a {
     text-decoration: none;
     position: relative;
     padding: 4px;
 }
-#lint-errors li {
+.lint-errors li {
     border-bottom: 1px solid #aaa;
     font-size: 1em;
     padding: 4px;
 }
-#lint-errors li:first-child {
+.lint-errors li:first-child {
     border-top: 1px solid #aaa;
 }
 .item-text label {
@@ -156,7 +157,7 @@ button:focus {
     border-color: #acacac;
     box-shadow: 0 0 3px 1px rgb(170,195,210);
 }
-#lint-errors button {
+.lint-errors button {
     margin-left: .5em;
     font-size: .8em;
     padding: .3em .45em;

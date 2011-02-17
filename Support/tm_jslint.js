@@ -292,7 +292,6 @@ var tm_jslint = {
     filterBlockComments: function (updateInput) {
         var filtered = '',
             input = this.input,
-            len = input.length,
             pos = 0,
             end = 0,
             inQuotes = false,
@@ -391,27 +390,28 @@ var tm_jslint = {
     runCheck: function () {
         var tmUrlBase = 'txmt://open?url=file://' + this.filePath,
             output = $('#lint-output'),
-            errorList = $('<ul>', { id: 'lint-errors' }),
+            errorList = $('<ul>', { 'class': 'lint-errors' }),
+            unusedList = $('<ul>', { 'class': 'lint-errors' }),
             errors = [],
             numErrors = 0,
             dispNumErrors = 0,
+            numUnused = 0,
             ret = false,
-            lastLine = false,
-            impliedsList = false,
-            implieds = [],
+            data,
             self = this;
 
         TextMate.isBusy = true;
         output.html('Please wait..');
 
         ret = JSLINT(this.input, this.options);
+        data = JSLINT.data();
 
         this.updateLintString();
         $('#JSLINT_PREDEF_GLOBALS').val(this.getPredefGlobals());
         output.empty();
 
-        if (!ret && JSLINT.errors.length) {
-            errors = JSLINT.errors.filter(function (e, i) {
+        if (data.errors) {
+            errors = data.errors.filter(function (e, i) {
                 return (e && typeof e === 'object');
             });
 
@@ -457,13 +457,47 @@ var tm_jslint = {
 
                 item.appendTo(errorList);
             });
-
-            errorList.appendTo(output);
-        } else if (!ret && !JSLINT.errors.length) {
+        } else if (!ret) {
             $('<div>', { 'class': 'lint-fail', text: 'Unknown error.' }).appendTo(output);
         } else {
             $('<div>', { 'class': 'lint-success', text: 'jslint: No problems found.' }).appendTo(output);
         }
+
+        errorList.appendTo(output);
+
+        if (data.unused) {
+            numUnused = data.unused.length;
+
+            $('<div>', {
+                'class': 'lint-warnings',
+                text: numUnused + ' unused variable' + (numUnused > 1 ? 's' : '') + ' found'
+            }).appendTo(output);
+
+            data.unused.forEach(function (e, i) {
+                var url = tmUrlBase + '&line=' + e.line + '&column=0',
+                    tip = 'Go to line ' + e.line,
+                    item = $('<li>'),
+                    reason = $('<div>', { 'class': 'lint-reason' }).appendTo(item),
+                    link = $('<a>', { 'class': 'lint-error', href: url, title: tip }).appendTo(item);
+
+                reason.append("Unused variable");
+
+                $('<div>', {
+                    'class': 'line-col',
+                    text: 'Line ' + e.line
+                }).appendTo(link);
+
+                $('<pre>', {
+                    text: e.name + ' in function ' + e['function'],
+                    'class': 'evidence'
+                }).appendTo(link);
+
+                item.appendTo(unusedList);
+            });
+
+            unusedList.appendTo(output);
+        }
+
 
         $('<a>', {
             href: '#',
