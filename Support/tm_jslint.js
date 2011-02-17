@@ -47,7 +47,7 @@ var tm_jslint = {
         this.input = this.input.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
         $.each(this.checkboxes, function (name, desc) {
-            $('<label>', { title: name, html: desc })
+            $('<label>', { title: name, html: desc, 'class': 'item-checkbox' })
                 .prepend($('<input>', {
                     type: 'checkbox',
                     id: 'JSLINT_' + name.toUpperCase(),
@@ -58,33 +58,57 @@ var tm_jslint = {
 
         this.filterBlockComments(false);
 
-        div.append($('<label>Tab Size: </label>').append($('<input>', {
-            type: 'text',
-            value: this.options.indent,
-            id: 'JSLINT_INDENT',
-            change: function () {
-                var elem = $(this);
+        $('<div class="item-text">')
+            .append($('<label>Max Errors:</label>'))
+            .append($('<input>', {
+                    type: 'text',
+                    value: this.options.maxerr,
+                    id: 'JSLINT_MAXERR',
+                    change: function () {
+                        var elem = $(this);
 
-                self.options.indent = parseInt(elem.val(), 10);
-                self.updateLintString();
-            }
-        })));
+                        self.options.maxerr = parseInt(elem.val(), 10);
+                        self.updateLintString();
+                    }
+                })
+            )
+            .appendTo(div);
 
-        div.append($('<label>Predefined: </label>').append($('<input>', {
-            type: 'text',
-            value: this.getPredefGlobals(),
-            id: 'JSLINT_PREDEF_GLOBALS',
-            change: function () {
-                var elem = $(this);
+        $('<div class="item-text">')
+            .append($('<label>Tab Size:</label>'))
+            .append($('<input>', {
+                    type: 'text',
+                    value: this.options.indent,
+                    id: 'JSLINT_INDENT',
+                    change: function () {
+                        var elem = $(this);
 
-                self.options.predef = {};
-                elem.val().split(',').forEach(function (name, i) {
-                    self.addPredefGlobal(name);
-                });
-                elem.val(self.getPredefGlobals());
-                self.updateLintString();
-            }
-        })));
+                        self.options.indent = parseInt(elem.val(), 10);
+                        self.updateLintString();
+                    }
+                })
+            )
+            .appendTo(div);
+
+        $('<div class="item-text">')
+            .append($('<label>Predefined:</label>'))
+            .append($('<input>', {
+                    type: 'text',
+                    value: this.getPredefGlobals(),
+                    id: 'JSLINT_PREDEF_GLOBALS',
+                    change: function () {
+                        var elem = $(this);
+
+                        self.options.predef = {};
+                        elem.val().split(',').forEach(function (name, i) {
+                            self.addPredefGlobal(name);
+                        });
+                        elem.val(self.getPredefGlobals());
+                        self.updateLintString();
+                    }
+                })
+            )
+            .appendTo(div);
 
         $('<button>', {
             text: 'The Good Parts',
@@ -404,9 +428,10 @@ var tm_jslint = {
 
             errors.forEach(function (e, i) {
                 var url = tmUrlBase + '&line=' + e.line + '&column=' + e.character,
-                    item = $('<li>').appendTo(errorList),
+                    tip = 'Go to line ' + e.line + ', column ' + e.character,
+                    item = $('<li>'),
                     reason = $('<div>', { 'class': 'lint-reason', text: e.reason }).appendTo(item),
-                    link = $('<a>', { 'class': 'lint-error', href: url }).appendTo(item);
+                    link = $('<a>', { 'class': 'lint-error', href: url, title: tip }).appendTo(item);
 
                 if ('raw' in e && "'{a}' is not defined." === e.raw) {
                     $('<button>', {
@@ -427,8 +452,10 @@ var tm_jslint = {
                 }).appendTo(link);
 
                 if ('evidence' in e && e.evidence) {
-                    $('<pre>', { text: e.evidence }).appendTo(link);
+                    $('<pre>', { text: e.evidence, 'class': 'evidence' }).appendTo(link);
                 }
+
+                item.appendTo(errorList);
             });
 
             errorList.appendTo(output);
