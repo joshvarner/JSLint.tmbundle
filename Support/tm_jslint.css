@@ -7,6 +7,7 @@ div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,butt
 html, body {
     font-size: 12px;
     line-height: 1.216;
+    min-height: 56em;
 }
 pre, code, #JSLINT_JSLINTSTRING {
     font: 12px/1.1 'menlo', 'monaco', fixed;
