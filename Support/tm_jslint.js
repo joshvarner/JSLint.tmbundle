@@ -38,12 +38,9 @@ var tm_jslint = {
         newcap:     'Require Initial Caps for constructors',
         strict:     'Require <code>"use strict";</code>'
     },
-    
+
     init: function () {
         var div = $('<div>'),
-            globalsRe = /\/\*globals\b([^\/*]+)\*\//gmi,
-            matches = false,
-            globals = [],
             self = this;
 
         this.options = $.extend({}, this.defaults);
@@ -136,7 +133,7 @@ var tm_jslint = {
         }).appendTo(div);
 
         div.prependTo('#JSLINT_OPTIONS');
-        
+
         $('#JSLINT_JSLINTSTRING').bind({
             click: function (e) {
                 $(this).select();
@@ -155,7 +152,7 @@ var tm_jslint = {
                 cmd.close();
             }
         }));
-        
+
         $('#JSLINT_OPTIONS').find(':checkbox').bind({
             click: function (e) {
                 var elem = $(this);
@@ -165,7 +162,7 @@ var tm_jslint = {
             }
         });
     },
-    
+
     disableInlineOptions: function () {
         this.filterBlockComments(true);
     },
@@ -450,5 +447,5 @@ var tm_jslint = {
 };
 
 window.tm_jslint = tm_jslint;
-    
+
 }());
