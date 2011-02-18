@@ -91,7 +91,7 @@ var tm_jslint = {
             .appendTo(div);
 
         $('<div class="item-text">')
-            .append($('<label>Predefined:</label>'))
+            .append($('<label>Globals:</label>'))
             .append($('<input>', {
                     type: 'text',
                     value: this.getPredefGlobals(),
@@ -435,7 +435,7 @@ var tm_jslint = {
 
                 if ('raw' in e && "'{a}' is not defined." === e.raw) {
                     $('<button>', {
-                        text: 'Add to Predefined',
+                        text: 'Add to Globals',
                         title: "Add '" + e.a + "' to list of predefined globals",
                         click: function (ev) {
                             ev.preventDefault();
