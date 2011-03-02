@@ -39,12 +39,47 @@ var tm_jslint = {
         strict:     'Require <code>"use strict";</code>'
     },
 
+    loadInput: function (cb) {
+        if (!this.input && this.filePath) {
+            this.readFile(cb);
+            return;
+        }
+
+        this.input = this.input.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+        $('#JSLINT_MAXERR').val(this.options.maxerr);
+        $('#JSLINT_INDENT').val(this.options.indent);
+        $('#JSLINT_PREDEF_GLOBALS').val(this.getPredefGlobals());
+
+        if (cb) {
+            cb.call(this);
+        }
+    },
+
+    readFile: function (cb) {
+        var self = this, fileContents = '', cmd;
+
+        cmd = TextMate.system("/bin/cat '" + this.filePath + "'", function () {
+            if (fileContents && fileContents.length) {
+                self.input = fileContents;
+                self.loadInput(cb);
+            }
+        });
+        cmd.onreadoutput = function (output) { fileContents += output; };
+        cmd.close();
+    },
+
     init: function () {
         var div = $('<div>'),
             self = this;
 
         this.options = $.extend({}, this.defaults);
         this.input = this.input.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        this.filterBlockComments(false);
+
+        $('#JSLINT_MAXERR').val(this.options.maxerr);
+        $('#JSLINT_INDENT').val(this.options.indent);
+        $('#JSLINT_PREDEF_GLOBALS').val(this.getPredefGlobals());
 
         $.each(this.checkboxes, function (name, desc) {
             $('<label>', { title: name, html: desc, 'class': 'item-checkbox' })
@@ -56,13 +91,10 @@ var tm_jslint = {
                 .appendTo(div);
         });
 
-        this.filterBlockComments(false);
-
         $('<div class="item-text">')
             .append($('<label>Max Errors:</label>'))
             .append($('<input>', {
                     type: 'text',
-                    value: this.options.maxerr,
                     id: 'JSLINT_MAXERR',
                     change: function () {
                         var elem = $(this);
@@ -78,7 +110,6 @@ var tm_jslint = {
             .append($('<label>Tab Size:</label>'))
             .append($('<input>', {
                     type: 'text',
-                    value: this.options.indent,
                     id: 'JSLINT_INDENT',
                     change: function () {
                         var elem = $(this);
@@ -94,7 +125,6 @@ var tm_jslint = {
             .append($('<label>Globals:</label>'))
             .append($('<input>', {
                     type: 'text',
-                    value: this.getPredefGlobals(),
                     id: 'JSLINT_PREDEF_GLOBALS',
                     change: function () {
                         var elem = $(this);
@@ -114,20 +144,22 @@ var tm_jslint = {
             text: 'The Good Parts',
             click: function (e) {
                 e.preventDefault();
-                self.disableInlineOptions();
+                self.loadInput(function () {
+                    self.disableInlineOptions();
 
-                $.extend(self.options, {
-                    white:    true,
-                    onevar:   true,
-                    undef:    true,
-                    nomen:    true,
-                    plusplus: true,
-                    bitwise:  true,
-                    regexp:   true,
-                    newcap:   true
+                    $.extend(self.options, {
+                        white:    true,
+                        onevar:   true,
+                        undef:    true,
+                        nomen:    true,
+                        plusplus: true,
+                        bitwise:  true,
+                        regexp:   true,
+                        newcap:   true
+                    });
+
+                    self.runCheck();
                 });
-
-                self.runCheck();
             }
         }).appendTo(div);
 
@@ -135,15 +167,17 @@ var tm_jslint = {
             text: 'Clear All',
             click: function (e) {
                 e.preventDefault();
-                self.disableInlineOptions();
+                self.loadInput(function () {
+                    self.disableInlineOptions();
 
-                $.each(self.options, function (i, val) {
-                    if (typeof val === 'boolean') {
-                        self.options[i] = false;
-                    }
+                    $.each(self.options, function (i, val) {
+                        if (typeof val === 'boolean') {
+                            self.options[i] = false;
+                        }
+                    });
+
+                    self.runCheck();
                 });
-
-                self.runCheck();
             }
         }).appendTo(div);
 
@@ -151,8 +185,10 @@ var tm_jslint = {
             text: 'Run Again',
             click: function (e) {
                 e.preventDefault();
-                self.disableInlineOptions();
-                self.runCheck();
+                self.loadInput(function () {
+                    self.disableInlineOptions();
+                    self.runCheck();
+                });
             }
         }).appendTo(div);
 
@@ -181,8 +217,10 @@ var tm_jslint = {
             click: function (e) {
                 var elem = $(this);
                 self.options[elem.attr('title')] = elem.is(':checked');
-                self.disableInlineOptions();
-                self.runCheck();
+                self.loadInput(function () {
+                    self.disableInlineOptions();
+                    self.runCheck();
+                });
             }
         });
     },
@@ -439,9 +477,12 @@ var tm_jslint = {
                         title: "Add '" + e.a + "' to list of predefined globals",
                         click: function (ev) {
                             ev.preventDefault();
-                            self.addPredefGlobal(e.a);
-                            self.disableInlineOptions();
-                            self.runCheck();
+
+                            self.loadInput(function () {
+                                self.addPredefGlobal(e.a);
+                                self.disableInlineOptions();
+                                self.runCheck();
+                            });
                         }
                     }).appendTo(reason);
                 }
@@ -507,6 +548,9 @@ var tm_jslint = {
                 $(output).append(JSLINT.report());
             }
         }).appendTo(output);
+
+        // Clear input after first run to force reload
+        this.input = false;
 
         TextMate.isBusy = false;
     }
