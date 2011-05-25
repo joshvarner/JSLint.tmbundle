@@ -2,7 +2,7 @@ This bundle validates JavaScript code within TextMate by using JSLint. Please se
 
 ## Screenshot
 
-![Screenshot of JSLint.tmbundle](https://github.com/voxwerk/JSLint.tmbundle/raw/master/Support/screenshot.jpg "Screenshot of JSLint.tmbundle")
+![Screenshot of JSLint.tmbundle](https://github.com/joshvarner/JSLint.tmbundle/raw/master/Support/screenshot.jpg "Screenshot of JSLint.tmbundle")
 
 ## See also
 
